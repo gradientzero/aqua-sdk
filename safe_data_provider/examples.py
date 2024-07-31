@@ -8,7 +8,7 @@ from . import utils as ut
 
 def use_case_1(
     privacy_budget=1.0,
-    groundwater_bounds: tuple = (0, 10),
+    groundwater_bounds: tuple = (0, 15),
     lat_bounds: tuple = None,
     lon_bounds: tuple = None,
     epsilon=.5,
@@ -21,10 +21,11 @@ def use_case_1(
 
     Args:
         privacy_budget (float):
-        groundwater_bounds (tuple):
+        groundwater_bounds (tuple): Default: (0, 15)
         lat_bounds (tuple): Default: None
         lon_bounds (tuple): Default: None
-        epsilon (float):
+        epsilon (float): value for the epsilon parameter of differential
+            privacy.
         num_locations (int): number of geographical locations. One groundwater value
             for each location.
         series_length (int): length of the series.
@@ -33,8 +34,7 @@ def use_case_1(
     groundwater_values_series, geographical_locations = (
         ut.generate_mockup_gw_values_and_locs_in_China(
             series_length,
-            num_locations,
-            groundwater_bounds
+            num_locations
         )
     )
 
@@ -76,7 +76,7 @@ def print_dp_results(series_length, dp_gw_mean_series, dp_centroid):
         print(
             '\nPrivacy-preserving estimations:'
             '\n\t - Differentially-private groundwater mean series: {}'.format(
-                [round(v, 1) for v in dp_gw_mean_series]),
+                [round(float(v), 1) for v in dp_gw_mean_series]),
             '\n\t - Differentially-private centroid of the geographical '
             'locations: ({:.2f}, {:.2f})'.format(dp_centroid[0],
                                                  dp_centroid[1])
@@ -85,7 +85,7 @@ def print_dp_results(series_length, dp_gw_mean_series, dp_centroid):
 
 def use_case_2(
     privacy_budget=1.0,
-    groundwater_bounds: tuple = (0, 10),
+    groundwater_bounds: tuple = (0, 15),
     lat_bounds: tuple = None,
     lon_bounds: tuple = None,
     epsilon=.5,
@@ -100,7 +100,7 @@ def use_case_2(
 
     Args:
         privacy_budget (float):
-        groundwater_bounds (tuple):
+        groundwater_bounds (tuple): Default: (0, 15)
         lat_bounds (tuple): Default: None
         lon_bounds (tuple): Default: None
         epsilon (float):
@@ -112,10 +112,17 @@ def use_case_2(
     groundwater_values_series, geographical_locations = (
         ut.generate_mockup_gw_values_and_locs_in_China(
             series_length,
-            num_locations,
-            groundwater_bounds
+            num_locations - 2
         )
     )
+
+    # Add a pair of out-of-China locations
+    ooc_geographical_locations = (
+        {'lat': 60, 'lon': 80},
+        {'lat': 15, 'lon': 50},
+    )
+    geographical_locations += ooc_geographical_locations
+
     es = dper.PrivacyPreservingEstimatorForRegion(
         groundwater_values_series,
         geographical_locations,

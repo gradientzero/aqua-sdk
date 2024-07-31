@@ -87,6 +87,14 @@ class PrivacyPreservingEstimatorForRegion:
         # filter a list with a Boolean mask
         filtered_locs = np.array(locs)[Boolean_mask].tolist()
 
+        diff = len(locs) - len(filtered_locs)
+        if diff > 0:
+            print('\n{} geographical locations ignored because they are '
+                  'out of the region of interest'.format(diff))
+
+        print('\nNumber of locations inside the region of interest: '
+              '{}'.format(len(filtered_locs)))
+
         filtered_groundwater_values_series = [None] * len(groundwater_values_series)
         for i, groundwater_values in enumerate(groundwater_values_series):
             filtered_groundwater_values_series[i] = (

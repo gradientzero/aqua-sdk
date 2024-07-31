@@ -17,10 +17,9 @@ China_box = [
 
 
 def generate_mockup_gw_values_and_locs_in_China(
-        series_length,
-        num_locations,
-        groundwater_bounds
-):
+        series_length: int,
+        num_locations: int
+) -> (tuple[tuple[float]], tuple[dict]):
     """
 
     Generate mockup data.
@@ -28,11 +27,12 @@ def generate_mockup_gw_values_and_locs_in_China(
     Args:
         series_length:
         num_locations:
-        groundwater_bounds:
 
     Returns:
 
     """
+
+    groundwater_bounds = (1, 10)  # arbitrary values for mockup data
 
     groundwater_values = [None] * series_length
     for i in range(series_length):
