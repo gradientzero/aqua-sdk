@@ -1,6 +1,6 @@
 # aqua-sdk
 
-SDK to generate data that can be used by the aqua-predict platform. 
+SDK to generate data that can be used by the Aqua Predict platform. 
 
 ## Setup
 

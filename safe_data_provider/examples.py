@@ -1,5 +1,8 @@
 """
-Some examples of usage
+Some examples of usage.
+
+Copyright 2024, Aqua Predict GmbH
+All rights reserved
 """
 from . import dp_estimator as dpe
 from . import dp_estimator_for_region as dper
@@ -32,11 +35,13 @@ def use_case_1(
 
     """
     groundwater_values_series, geographical_locations = (
-        ut.generate_mockup_gw_values_and_locs_in_China(
+        ut.generate_mockup_gw_values_and_locs(
             series_length,
             num_locations
         )
     )
+
+    ut.print_mockup_data(groundwater_values_series, geographical_locations)
 
     ppe = dpe.PrivacyPreservingEstimator(
         groundwater_values_series,
@@ -49,13 +54,15 @@ def use_case_1(
 
     dp_gw_mean_series, dp_centroid = ppe.safely_estimate_mean_gw_series_for_locations(
         epsilon=epsilon)
-    print_dp_results(series_length, dp_gw_mean_series, dp_centroid)
+    print_dp_results(ppe, series_length, dp_gw_mean_series, dp_centroid)
 
 
-def print_dp_results(series_length, dp_gw_mean_series, dp_centroid):
+def print_dp_results(dp_es, series_length, dp_gw_mean_series,
+                     dp_centroid):
     """
 
     Args:
+        dp_es: Differentially-private mean estimator instance.
         series_length:
         dp_gw_mean_series:
         dp_centroid:
@@ -63,6 +70,7 @@ def print_dp_results(series_length, dp_gw_mean_series, dp_centroid):
     Returns:
 
     """
+    print('\n\n ----- Results of the computation ----- ')
     if series_length == 1:
         print(
             '\nPrivacy-preserving estimations:'
@@ -82,6 +90,8 @@ def print_dp_results(series_length, dp_gw_mean_series, dp_centroid):
                                                  dp_centroid[1])
         )
 
+    dp_es.print_gw_privacy_accountant_status()
+
 
 def use_case_2(
     privacy_budget=1.0,
@@ -91,7 +101,7 @@ def use_case_2(
     epsilon=.5,
     num_locations=100,
     series_length=1,
-    polygon: tuple[dict] = ut.China_box
+    polygon: tuple[dict] = ut.region_box
 ):
     """
     Estimate the differentially-private mean series of the groundwater values
@@ -110,18 +120,24 @@ def use_case_2(
         polygon (tuple[dict])
     """
     groundwater_values_series, geographical_locations = (
-        ut.generate_mockup_gw_values_and_locs_in_China(
+        ut.generate_mockup_gw_values_and_locs(
             series_length,
             num_locations - 2
         )
     )
 
-    # Add a pair of out-of-China locations
-    ooc_geographical_locations = (
+    # Add a pair of out-of-region locations
+    oor_geographical_locations = (
         {'lat': 60, 'lon': 80},
         {'lat': 15, 'lon': 50},
     )
-    geographical_locations += ooc_geographical_locations
+    geographical_locations += oor_geographical_locations
+    groundwater_values_series = list(groundwater_values_series)
+    for c in range(len(groundwater_values_series)):
+        groundwater_values_series[c] += (7, 5)
+    groundwater_values_series = tuple(groundwater_values_series)
+
+    ut.print_mockup_data(groundwater_values_series, geographical_locations)
 
     es = dper.PrivacyPreservingEstimatorForRegion(
         groundwater_values_series,
@@ -135,4 +151,4 @@ def use_case_2(
     dp_gw_mean_series, dp_centroid = (
         es.safely_estimate_mean_gw_series_for_region(epsilon=epsilon)
     )
-    print_dp_results(series_length, dp_gw_mean_series, dp_centroid)
+    print_dp_results(es, series_length, dp_gw_mean_series, dp_centroid)

@@ -1,12 +1,15 @@
 """
 Convenience methods for safely providing input data to the Water Intelligence
 platform.
+
+Copyright 2024, Aqua Predict GmbH
+All rights reserved
 """
 
 import numpy as np
 
 from .dp_estimator import PrivacyPreservingEstimator
-from .utils import China_box, filter_2D_points_inside_polygon
+from .utils import region_box, filter_2D_points_inside_polygon
 
 
 class PrivacyPreservingEstimatorForRegion:
@@ -40,8 +43,8 @@ class PrivacyPreservingEstimatorForRegion:
         privacy_budget (float): privacy budget for safely estimating
             statistics on a certain dataset.
         region_boundary (tuple[dict]): polygon identifying the region of
-            interest. The default value is a box roughly containing the
-            whole China surface.
+            interest. The default value is a box. However, polygons with an
+            arbitrary number of vertexes can be used.
     """
     def __init__(
             self,
@@ -51,7 +54,7 @@ class PrivacyPreservingEstimatorForRegion:
             lat_bounds: tuple = None,
             lon_bounds: tuple = None,
             privacy_budget: float = 1.0,
-            region_boundary: tuple[dict] = China_box
+            region_boundary: tuple[dict] = region_box
     ):
 
         self.groundwater_bounds = groundwater_bounds
@@ -129,3 +132,10 @@ class PrivacyPreservingEstimatorForRegion:
             epsilon)
 
         return dp_gw_mean_series, dp_centroid
+
+    def print_gw_privacy_accountant_status(self):
+        """
+        Convenience method.
+
+        """
+        self.dp_estimator.print_gw_privacy_accountant_status()

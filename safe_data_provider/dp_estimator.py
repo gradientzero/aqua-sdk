@@ -1,6 +1,9 @@
 """
 Convenience methods for safely providing input data to the Water Intelligence
 platform.
+
+Copyright 2024, Aqua Predict GmbH
+All rights reserved
 """
 
 import diffprivlib as dp
@@ -68,10 +71,18 @@ class PrivacyPreservingEstimator:
             privacy_accountant (dp.BudgetAccountant): Privacy accountant
                 instance.
         """
+        print('\nPrivacy budget status:')
         t_epsilon, t_delta = privacy_accountant.total()
-        print('\nPrivacy budget spent: {:.2f}'.format(t_epsilon))
+        print('\tbudget spent: {:.2f}'.format(t_epsilon))
         r_epsilon, r_delta = privacy_accountant.remaining()
-        print('Privacy budget remaning: {:.1f}'.format(r_epsilon))
+        print('\tbudget remaning: {:.1f}'.format(r_epsilon))
+
+    def print_gw_privacy_accountant_status(self):
+        """
+        Convenience method.
+
+        """
+        self.print_privacy_accountant_status(self.gw_privacy_accountant)
 
     def safely_estimate_mean_gw_series_for_locations(
         self,
@@ -115,6 +126,6 @@ class PrivacyPreservingEstimator:
 
         dp_centroid = (dp_lat, dp_lon)
 
-        self.print_privacy_accountant_status(self.gw_privacy_accountant)
+        # self.print_privacy_accountant_status(self.gw_privacy_accountant)
 
         return dp_gw_mean_series, dp_centroid

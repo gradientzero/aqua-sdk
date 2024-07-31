@@ -1,22 +1,25 @@
 """
-Convenience functions.
+Utility functions.
+
+Copyright 2024, Aqua Predict GmbH
+All rights reserved
 """
 
 import numpy as np
 
-China_lat_greatest_lb = 18
-China_lat_least_ub = 54
-China_lon_greatest_lb = 73
-China_lon_least_ub = 135
-China_box = [
-    {'lat': China_lat_greatest_lb, 'lon': China_lon_greatest_lb},
-    {'lat': China_lat_greatest_lb, 'lon': China_lon_least_ub},
-    {'lat': China_lat_least_ub, 'lon': China_lon_least_ub},
-    {'lat': China_lat_least_ub, 'lon': China_lon_greatest_lb}
+lat_greatest_lb = 18
+lat_least_ub = 54
+lon_greatest_lb = 73
+lon_least_ub = 135
+region_box = [
+    {'lat': lat_greatest_lb, 'lon': lon_greatest_lb},
+    {'lat': lat_greatest_lb, 'lon': lon_least_ub},
+    {'lat': lat_least_ub, 'lon': lon_least_ub},
+    {'lat': lat_least_ub, 'lon': lon_greatest_lb}
 ]
 
 
-def generate_mockup_gw_values_and_locs_in_China(
+def generate_mockup_gw_values_and_locs(
         series_length: int,
         num_locations: int
 ) -> (tuple[tuple[float]], tuple[dict]):
@@ -32,7 +35,8 @@ def generate_mockup_gw_values_and_locs_in_China(
 
     """
 
-    groundwater_bounds = (1, 10)  # arbitrary values for mockup data
+    groundwater_bounds = (1, 10)  # arbitrary values for mockup groundwater
+    # data
 
     groundwater_values = [None] * series_length
     for i in range(series_length):
@@ -41,8 +45,8 @@ def generate_mockup_gw_values_and_locs_in_China(
         ))
     groundwater_values = tuple(groundwater_values)
 
-    lat_bounds = (China_lat_greatest_lb, China_lat_least_ub)
-    lon_bounds = (China_lon_greatest_lb, China_lon_least_ub)
+    lat_bounds = (lat_greatest_lb, lat_least_ub)
+    lon_bounds = (lon_greatest_lb, lon_least_ub)
 
     geographical_locations_lat = generate_mockup_values(
         num_values=num_locations, bounds=lat_bounds
@@ -80,26 +84,54 @@ def generate_mockup_values(
     return np.random.uniform(bounds[0], bounds[1], num_values).tolist()
 
 
-def generate_series_of_mockup_observations(
-    num_sets: int = 3,
-    num_values: int = 10,
-    bounds: tuple = (0, 10)
-) -> list[list]:
+def print_mockup_data(
+        groundwater_values_series: tuple[tuple[float]],
+        geographical_locations: tuple[dict]
+):
     """
 
     Args:
-        num_sets:
-        num_values:
-        bounds:
+        groundwater_values_series (tuple[tuple[float]]):
+        geographical_locations (tuple[dict]):
 
     Returns:
 
     """
-    series = [None] * num_sets
-    for i in range(3):
-        series[i] = generate_mockup_values(num_values, bounds)
+    print('\n\n ----- Mockup data generated ----- ')
+    print('\nMockup geographical locations:')
+    for g in geographical_locations:
+        print('\tlatitude: {:.2f}, longitude: {:.2f}'.format(
+            g['lat'], g['lon'])
+        )
 
-    return series
+    if len(groundwater_values_series) == 1:
+        tmp = [round(v, 2) for v in groundwater_values_series[0]]
+        print('\nSingle set of mockup groundwater values: {}'.format(tmp))
+    else:
+        print('\nSeries of {} sets of mockup groundwater values: '
+              ''.format(len(groundwater_values_series)))
+        for c, gwvs in enumerate(groundwater_values_series):
+            tmp = [round(v, 2) for v in gwvs]
+            print('\tSet {}: {}'.format(c+1, tmp))
+
+
+def pretty_print_dict(d, indent_steps=1, indent_unit='  ',
+                      logger_fun=None):
+    """Print dictionary."""
+    for key, value in d.items():
+        if isinstance(value, dict):
+            text = indent_unit * indent_steps + str(key) + ': '
+            if logger_fun is None:
+                print(text)
+            else:
+                logger_fun(text)
+            pretty_print_dict(value, indent_steps + 1)
+        else:
+            text = indent_unit * indent_steps + str(key) + ': ' + str(value)
+            if logger_fun is None:
+                print(text)
+            else:
+                logger_fun(text)
 
 
 def filter_2D_points_inside_polygon(
